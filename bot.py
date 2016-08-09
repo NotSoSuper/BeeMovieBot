@@ -36,25 +36,36 @@ cookies = {
 }
 headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0.1 Waterfox/47.0.1'}
 api = 'https://steamcommunity.com/comment/Profile/post/{0}/-1/'.format(steam64)
+delay = 15
 async def main():
   """Bee Movie Script poster for steam profiles!"""
   message = ''
+  count = 0
   for x in script_parts:
     for s in script_parts[x]:
       if len(s) < 1000 and len(message) < 800:
         message += s
       else:
         payload = {'comment': message, 'count': '6', 'sessionid': session_id}
-        r = requests.post(api, headers=headers, cookies=cookies, data=payload)
-        if r.json()['success'] == 'false':
-          print(payload)
-          print(len(message))
+        try:
+          r = requests.post(api, headers=headers, cookies=cookies, data=payload)
+          if r.json()['success'] == 'false':
+            print(payload)
+            print(len(message))
+            print(r.text)
+            print("either you got ratelimited by steam for posting too many comments or something went wrong, rip.")
+            return
+        except Exception as e:
+          print(e)
           print(r.text)
+          print(r.json())
           print("either you got ratelimited by steam for posting too many comments or something went wrong, rip.")
           return
         message = ''
         message += str(s)
-        await asyncio.sleep(5)
+        count += 1
+        print('Comment {0}/{1} Sent\nDelay: {2} seconds'.format(count, len(script_parts), delay))
+        await asyncio.sleep(delay)
   last_comment = 'Bee Movie (2007) - 6.2/10\nhttp://www.imdb.com/title/tt0389790/\n\nBarry B. Benson, a bee just graduated from college, is disillusioned at his lone career choice: making honey. On a special trip outside the hive, Barry\'s life is saved by Vanessa, a florist in New York City. As their relationship blossoms, he discovers humans actually eat honey, and subsequently decides to sue them.'
   payload = {'comment': last_comment, 'count': '6', 'sessionid': session_id}
   r = requests.post(api, headers=headers, cookies=cookies, data=payload)
