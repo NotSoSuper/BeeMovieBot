@@ -6,11 +6,21 @@ script_path = 'script.json'
 with open(script_path, 'r') as f:
   script = json.loads(f.read())
 
+def reverse(l):
+  size = len(l)
+  nindex = size - 1
+  ll = int(size/2)
+  for i in range(0, ll):
+    temp = l[nindex]
+    l[nindex] = l[i] 
+    l[i] = temp
+    nindex -= 1
+
 i = 0
 count = 0
 script_small_parts = []
 script_parts = {}
-for x in reversed(script):
+for x in script:
   if i > 10:
     i = 0
     script_parts.update({count:script_small_parts})
@@ -41,6 +51,7 @@ async def main():
   """Bee Movie Script poster for steam profiles!"""
   message = ''
   count = 0
+  reverse(script_parts)
   for x in script_parts:
     for s in script_parts[x]:
       if len(s) < 1000 and len(message) < 800:
@@ -50,15 +61,9 @@ async def main():
         try:
           r = requests.post(api, headers=headers, cookies=cookies, data=payload)
           if r.json()['success'] == 'false':
-            print(payload)
-            print(len(message))
-            print(r.text)
             print("either you got ratelimited by steam for posting too many comments or something went wrong, rip.")
             return
         except Exception as e:
-          print(e)
-          print(r.text)
-          print(r.json())
           print("either you got ratelimited by steam for posting too many comments or something went wrong, rip.")
           return
         message = ''
@@ -73,4 +78,4 @@ async def main():
 
 loop = asyncio.get_event_loop()  
 loop.run_until_complete(main())  
-loop.close() 
+loop.close()
